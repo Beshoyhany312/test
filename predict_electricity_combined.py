@@ -241,12 +241,12 @@ def generate_pdf_catboost(inputs: dict, kwh: float, bill: float, ex_rate: float)
     pdf.cell(0, 8, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}  |  Model: CatBoost", ln=True, align='C')
     pdf.ln(6)
 
-    # Results box
     pdf.set_fill_color(230, 245, 255)
     pdf.set_draw_color(30, 60, 114)
     pdf.set_font("Arial", 'B', 13)
     pdf.set_text_color(30, 60, 114)
     pdf.cell(0, 10, "Prediction Results", ln=True, fill=True)
+
     pdf.set_font("Arial", '', 11)
     pdf.set_text_color(30, 30, 30)
     pdf.cell(95, 9, f"Monthly Consumption: {kwh:,.2f} kWh", border=1, ln=False)
@@ -255,22 +255,24 @@ def generate_pdf_catboost(inputs: dict, kwh: float, bill: float, ex_rate: float)
     pdf.cell(95, 9, f"USD Equivalent: ${bill/ex_rate:,.2f}", border=1, ln=True)
     pdf.ln(6)
 
-    # Budget alert
+    # FIXED: removed emojis
     pdf.set_font("Arial", 'B', 11)
     if bill > 1000:
         pdf.set_text_color(200, 0, 0)
-        pdf.cell(0, 9, "⚠  STATUS: OVER BUDGET (> 1,000 EGP/month)", ln=True)
+        pdf.cell(0, 9, "STATUS: OVER BUDGET (> 1,000 EGP/month)", ln=True)
     else:
         pdf.set_text_color(0, 150, 0)
-        pdf.cell(0, 9, "✓  STATUS: WITHIN BUDGET", ln=True)
+        pdf.cell(0, 9, "STATUS: WITHIN BUDGET", ln=True)
 
     pdf.ln(4)
-    # Inputs table
+
     pdf.set_font("Arial", 'B', 12)
     pdf.set_text_color(30, 60, 114)
     pdf.cell(0, 9, "Input Data", ln=True)
+
     pdf.set_font("Arial", '', 10)
     pdf.set_text_color(30, 30, 30)
+
     for k, v in inputs.items():
         label = k.replace('_', ' ').title()
         pdf.cell(95, 8, f"{label}", border='LTB')
@@ -279,7 +281,8 @@ def generate_pdf_catboost(inputs: dict, kwh: float, bill: float, ex_rate: float)
     pdf.ln(8)
     pdf.set_font("Arial", 'I', 9)
     pdf.set_text_color(150, 150, 150)
-    pdf.cell(0, 8, "Smart Electricity Prediction Suite  |  CatBoost + LightGBM", ln=True, align='C')
+    pdf.cell(0, 8, "Smart Electricity Prediction Suite | CatBoost + LightGBM", ln=True, align='C')
+
     return pdf.output(dest='S').encode('latin-1')
 
 def generate_pdf_lgbm(inputs: dict, cost_usd: float, ex_rate: float) -> bytes:
@@ -335,23 +338,16 @@ def generate_pdf_lgbm(inputs: dict, cost_usd: float, ex_rate: float) -> bytes:
     return pdf.output(dest='S').encode('latin-1')
 
 # ── SIDEBAR ────────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("### ⚙️ Settings")
-    ex_rate = st.number_input("USD → EGP Exchange Rate", min_value=1.0, value=48.5, step=0.5,
-                               help="Used to convert USD predictions to EGP and for PDF reports.")
-    budget_egp = st.number_input("Monthly Budget Alert (EGP)", min_value=0, value=1000, step=50,
-                                  help="App will warn you if predicted bill exceeds this.")
-    st.markdown("---")
-    st.markdown("""
-    <div style="font-size:0.8rem; color:#8b949e; line-height:1.6;">
-    <b style="color:#e6edf3;">📁 Required files in repo:</b><br>
-    • catboost_kwh_model.joblib<br>
-    • catboost_bill_model.joblib<br>
-    • feature_scaler.joblib<br>
-    • lightgbm_regressor_model.joblib<br>
-    • scaler.joblib
-    </div>
-    """, unsafe_allow_html=True)
+with st.markdown("""
+<div style="font-size:0.8rem; color:#8b949e; line-height:1.6;">
+<b style="color:#e6edf3;">📁 Required files in repo:</b><br>
+• catboost_kwh_model.joblib<br>
+• catboost_bill_model.joblib<br>
+• feature_scaler.joblib<br>
+• lightgbm_regressor_model.joblib<br>
+• scaler.joblib
+</div>
+""", unsafe_allow_html=True)
 
 # ── HEADER ─────────────────────────────────────────────────────────────────────
 st.markdown("""

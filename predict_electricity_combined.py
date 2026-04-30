@@ -347,7 +347,7 @@ with st.markdown("""
 • lightgbm_regressor_model.joblib<br>
 • scaler.joblib
 </div>
-""", unsafe_allow_html=True)
+":", unsafe_allow_html=True)
 
 # ── HEADER ─────────────────────────────────────────────────────────────────────
 st.markdown("""

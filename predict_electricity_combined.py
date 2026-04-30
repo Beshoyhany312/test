@@ -151,7 +151,7 @@ LGBM_SCALER_PATH = os.path.join(BASE_DIR, "scaler.joblib")
 MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 # ── LOADERS ───────────────────────────────────────────────────────────────────
-@st.cache_resource(show_spinner="Loading CatBoost models…")
+@st.cache_resource(show_spinner="Loading CatBoost models...")
 def load_catboost():
     missing = [p for p in (CATBOOST_KWH, CATBOOST_BILL, SCALER_PATH) if not os.path.exists(p)]
     if missing:
@@ -159,7 +159,7 @@ def load_catboost():
         return None, None, None
     return joblib.load(CATBOOST_KWH), joblib.load(CATBOOST_BILL), joblib.load(SCALER_PATH)
 
-@st.cache_resource(show_spinner="Loading LightGBM model…")
+@st.cache_resource(show_spinner="Loading LightGBM model...")
 def load_lgbm():
     missing = [p for p in (LGBM_MODEL_PATH, LGBM_SCALER_PATH) if not os.path.exists(p)]
     if missing:
@@ -196,7 +196,7 @@ def preprocess_electricity(raw: dict, scaler) -> np.ndarray:
 
 # ── HELPERS ────────────────────────────────────────────────────────────────────
 def cost_zone_egp(val):
-    if val < 300:   return "#00e5ff", "Low Consumption Zone",      "Great efficiency — below average for this configuration."
+    if val < 300:   return "#00e5ff", "Low Consumption Zone",      "Great efficiency -- below average for this configuration."
     elif val < 700: return "#FFD700", "Moderate Consumption Zone", "Typical range for a household of this size."
     else:           return "#FF6B6B", "High Consumption Zone",     "Consider energy-saving measures or appliance upgrades."
 
@@ -206,7 +206,7 @@ def cost_zone_usd(val):
     else:            return "#FF6B6B", "High Consumption Zone",     "Consider energy audits or efficiency improvements."
 
 def monthly_trend(base_value: float) -> list:
-    """Simulates 12-month seasonality — summer peaks, winter dips."""
+    """Simulates 12-month seasonality -- summer peaks, winter dips."""
     return [round(base_value * (1 + 0.25 * np.cos((i - 6) / 1.9)), 2) for i in range(12)]
 
 def plot_trend(values: list, label: str, currency: str, color: str) -> go.Figure:
@@ -259,10 +259,10 @@ def generate_pdf_catboost(inputs: dict, kwh: float, bill: float, ex_rate: float)
     pdf.set_font("Arial", 'B', 11)
     if bill > 1000:
         pdf.set_text_color(200, 0, 0)
-        pdf.cell(0, 9, "⚠  STATUS: OVER BUDGET (> 1,000 EGP/month)", ln=True)
+        pdf.cell(0, 9, "STATUS: OVER BUDGET (> 1,000 EGP/month)", ln=True)
     else:
         pdf.set_text_color(0, 150, 0)
-        pdf.cell(0, 9, "✓  STATUS: WITHIN BUDGET", ln=True)
+        pdf.cell(0, 9, "STATUS: WITHIN BUDGET", ln=True)
 
     pdf.ln(4)
     # Inputs table
@@ -310,13 +310,13 @@ def generate_pdf_lgbm(inputs: dict, cost_usd: float, ex_rate: float) -> bytes:
     pdf.set_font("Arial", 'B', 11)
     if cost_usd > 1500:
         pdf.set_text_color(200, 0, 0)
-        pdf.cell(0, 9, "⚠  STATUS: HIGH CONSUMPTION (> $1,500/month)", ln=True)
+        pdf.cell(0, 9, "STATUS: HIGH CONSUMPTION (> $1,500/month)", ln=True)
     elif cost_usd > 500:
         pdf.set_text_color(200, 140, 0)
-        pdf.cell(0, 9, "~  STATUS: MODERATE CONSUMPTION", ln=True)
+        pdf.cell(0, 9, "STATUS: MODERATE CONSUMPTION", ln=True)
     else:
         pdf.set_text_color(0, 150, 0)
-        pdf.cell(0, 9, "✓  STATUS: LOW / EFFICIENT", ln=True)
+        pdf.cell(0, 9, "STATUS: LOW / EFFICIENT", ln=True)
 
     pdf.ln(4)
     pdf.set_font("Arial", 'B', 12)
@@ -336,35 +336,24 @@ def generate_pdf_lgbm(inputs: dict, cost_usd: float, ex_rate: float) -> bytes:
 
 # ── SIDEBAR ────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### ⚙️ Settings")
-    ex_rate = st.number_input("USD → EGP Exchange Rate", min_value=1.0, value=48.5, step=0.5,
+    st.markdown("### Settings")
+    ex_rate = st.number_input("USD -> EGP Exchange Rate", min_value=1.0, value=48.5, step=0.5,
                                help="Used to convert USD predictions to EGP and for PDF reports.")
     budget_egp = st.number_input("Monthly Budget Alert (EGP)", min_value=0, value=1000, step=50,
                                   help="App will warn you if predicted bill exceeds this.")
-    st.markdown("---")
-    st.markdown("""
-    <div style="font-size:0.8rem; color:#8b949e; line-height:1.6;">
-    <b style="color:#e6edf3;">📁 Required files in repo:</b><br>
-    • catboost_kwh_model.joblib<br>
-    • catboost_bill_model.joblib<br>
-    • feature_scaler.joblib<br>
-    • lightgbm_regressor_model.joblib<br>
-    • scaler.joblib
-    </div>
-    """, unsafe_allow_html=True)
 
 # ── HEADER ─────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div style="padding: 1.5rem 0 0.5rem 0;">
-    <span class="model-badge">⚡ ELECTRICITY SUITE</span>
-    <span class="model-badge">🐱 CatBoost</span>
-    <span class="model-badge">💡 LightGBM</span>
+    <span class="model-badge">ELECTRICITY SUITE</span>
+    <span class="model-badge">CatBoost</span>
+    <span class="model-badge">LightGBM</span>
     <h1 style="margin-top:0.8rem; font-size:2rem; color:#e6edf3; line-height:1.3;">
         Electricity Cost &<br><span style="color:#00e5ff;">Energy Predictor</span>
     </h1>
     <p style="color:#8b949e; font-size:0.9rem; margin-top:0.4rem;">
-        Two ML models · PDF report · 12-month forecast · Budget alert<br>
-        Inputs default to dataset averages — only fill in what you know.
+        Two ML models | PDF report | 12-month forecast | Budget alert<br>
+        Inputs default to dataset averages -- only fill in what you know.
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -372,24 +361,24 @@ st.markdown("""
 st.divider()
 
 # ── TABS ───────────────────────────────────────────────────────────────────────
-tab1, tab2 = st.tabs(["🐱 CatBoost  —  Home Electricity (kWh + EGP)", "💡 LightGBM  —  Smart City Site (USD)"])
+tab1, tab2 = st.tabs(["CatBoost  --  Home Electricity (kWh + EGP)", "LightGBM  --  Smart City Site (USD)"])
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 1 — CatBoost
+# TAB 1 -- CatBoost
 # ══════════════════════════════════════════════════════════════════════════════
 with tab1:
     st.markdown("""
     <span class="model-badge">CatBoost Regressor</span>
     <span class="model-badge">Dual Output: kWh + EGP</span>
     <p class="default-note" style="margin-top:0.6rem;">
-        ℹ️ All inputs default to dataset means. Leave unchanged if unsure.
+        All inputs default to dataset means. Leave unchanged if unsure.
     </p>
     """, unsafe_allow_html=True)
 
     kwh_model, bill_model, cb_scaler = load_catboost()
 
     with st.form("catboost_form"):
-        st.markdown("#### 🏠 Home & Appliances")
+        st.markdown("#### Home & Appliances")
         c1, c2, c3 = st.columns(3)
         with c1:
             cb_ac      = st.number_input("Air Conditioners",   min_value=0, value=int(round(MEANS['number_of_air_conditioners'])))
@@ -403,11 +392,11 @@ with tab1:
             cb_heater  = st.selectbox("Water Heater?", ["Yes", "No"], index=0)
         with c3:
             cb_hours   = st.slider("Daily Usage Hours", 0.0, 24.0, round(MEANS['average_daily_usage_hours'], 1))
-            cb_house   = st.number_input("House Size (m²)", min_value=10.0, value=round(MEANS['house_size_m2'], 0))
+            cb_house   = st.number_input("House Size (m2)", min_value=10.0, value=round(MEANS['house_size_m2'], 0))
             cb_season  = st.selectbox("Season", ["Summer", "Winter"], index=0)
             cb_insul   = st.selectbox("Insulation Quality", ["High", "Medium", "Low"], index=0)
 
-        cb_submit = st.form_submit_button("⚡ Predict with CatBoost", use_container_width=True)
+        cb_submit = st.form_submit_button("Predict with CatBoost", use_container_width=True)
 
     if cb_submit:
         if kwh_model is None:
@@ -427,7 +416,7 @@ with tab1:
                 'has_water_heater':               1 if cb_heater == "Yes" else 0,
                 'washing_machine_usage_per_week': cb_washing,
             }
-            with st.spinner("Running CatBoost…"):
+            with st.spinner("Running CatBoost..."):
                 try:
                     scaled = preprocess_electricity(raw, cb_scaler)
                     kwh    = float(kwh_model.predict(scaled).flatten()[0])
@@ -437,21 +426,21 @@ with tab1:
                     if bill > budget_egp:
                         st.markdown(f"""
                         <div class="warning-banner">
-                            <h3 style="color:#ff4b4b; margin:0;">⚠️ Over Budget Alert</h3>
+                            <h3 style="color:#ff4b4b; margin:0;">Over Budget Alert</h3>
                             <p style="color:#ff4b4b; margin:0.3rem 0 0 0;">
                                 Predicted bill <b>{bill:,.1f} EGP</b> exceeds your budget of <b>{budget_egp:,} EGP</b>
                             </p>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
-                        st.success(f"✅ Within budget! Predicted bill: {bill:,.1f} EGP (limit: {budget_egp:,} EGP)")
+                        st.success(f"Within budget! Predicted bill: {bill:,.1f} EGP (limit: {budget_egp:,} EGP)")
 
                     # ── Metrics ────────────────────────────────────────────────
                     m1, m2, m3, m4 = st.columns(4)
-                    m1.metric("🔋 Consumption",   f"{kwh:,.1f} kWh")
-                    m2.metric("💰 Monthly Bill",  f"{bill:,.1f} EGP")
-                    m3.metric("📅 Annual Bill",   f"{bill*12:,.0f} EGP")
-                    m4.metric("📊 Daily Cost",    f"{bill/30:,.1f} EGP")
+                    m1.metric("Consumption",   f"{kwh:,.1f} kWh")
+                    m2.metric("Monthly Bill",  f"{bill:,.1f} EGP")
+                    m3.metric("Annual Bill",   f"{bill*12:,.0f} EGP")
+                    m4.metric("Daily Cost",    f"{bill/30:,.1f} EGP")
 
                     # ── Zone card ──────────────────────────────────────────────
                     color, zone_label, zone_note = cost_zone_egp(bill)
@@ -469,13 +458,13 @@ with tab1:
                     chart_col, pdf_col = st.columns([3, 1])
 
                     with chart_col:
-                        st.markdown("#### 🗓️ 12-Month Cost Forecast")
+                        st.markdown("#### 12-Month Cost Forecast")
                         trend_vals = monthly_trend(bill)
                         fig = plot_trend(trend_vals, "Estimated Monthly Bill", "EGP", "#00e5ff")
                         st.plotly_chart(fig, use_container_width=True)
 
                     with pdf_col:
-                        st.markdown("#### 📄 Download Report")
+                        st.markdown("#### Download Report")
                         st.markdown("<br>", unsafe_allow_html=True)
                         human_inputs = {
                             "Air Conditioners":    cb_ac,
@@ -485,7 +474,7 @@ with tab1:
                             "Fans":                cb_fans,
                             "Computers":           cb_pc,
                             "Daily Hours":         cb_hours,
-                            "House Size (m²)":     cb_house,
+                            "House Size (m2)":     cb_house,
                             "Season":              cb_season,
                             "Insulation":          cb_insul,
                             "Water Heater":        cb_heater,
@@ -493,7 +482,7 @@ with tab1:
                         }
                         pdf_bytes = generate_pdf_catboost(human_inputs, kwh, bill, ex_rate)
                         st.download_button(
-                            label="📥 Download PDF Report",
+                            label="Download PDF Report",
                             data=pdf_bytes,
                             file_name=f"electricity_report_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
                             mime="application/pdf",
@@ -511,14 +500,14 @@ with tab1:
                     st.exception(e)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TAB 2 — LightGBM
+# TAB 2 -- LightGBM
 # ══════════════════════════════════════════════════════════════════════════════
 with tab2:
     st.markdown("""
     <span class="model-badge">LightGBM Regressor</span>
     <span class="model-badge">Output: USD/month</span>
     <p class="default-note" style="margin-top:0.6rem;">
-        ℹ️ Smart-city site model. Inputs default to example values. Leave unchanged if unsure.
+        Smart-city site model. Inputs default to example values. Leave unchanged if unsure.
     </p>
     """, unsafe_allow_html=True)
 
@@ -532,10 +521,10 @@ with tab2:
     ]
 
     with st.form("lgbm_form"):
-        st.markdown("#### 📐 Site Information")
+        st.markdown("#### Site Information")
         lc1, lc2, lc3 = st.columns(3)
         with lc1:
-            l_area     = st.number_input("Site Area (m²)",             min_value=100,   value=1360,   step=50)
+            l_area     = st.number_input("Site Area (m2)",             min_value=100,   value=1360,   step=50)
             l_resident = st.number_input("Resident Count",              min_value=1,     value=6,      step=1)
             l_util     = st.slider("Utilisation Rate (%)",              0, 100, 59)
         with lc2:
@@ -548,7 +537,7 @@ with tab2:
                                       ["Commercial", "Industrial", "Mixed-use", "Residential"],
                                       index=2)
 
-        lgbm_submit = st.form_submit_button("⚡ Predict with LightGBM", use_container_width=True)
+        lgbm_submit = st.form_submit_button("Predict with LightGBM", use_container_width=True)
 
     if lgbm_submit:
         if lgbm_model is None:
@@ -566,7 +555,7 @@ with tab2:
                 'Structure Type_Mixed-use':           int(l_struct == "Mixed-use"),
                 'Structure Type_Residential':         int(l_struct == "Residential"),
             }
-            with st.spinner("Running LightGBM…"):
+            with st.spinner("Running LightGBM..."):
                 try:
                     df_in  = pd.DataFrame([lgbm_input], columns=LGBM_COLS)
                     scaled = lgbm_scaler.transform(df_in)
@@ -578,21 +567,21 @@ with tab2:
                     if cost > budget_usd:
                         st.markdown(f"""
                         <div class="warning-banner">
-                            <h3 style="color:#ff4b4b; margin:0;">⚠️ Over Budget Alert</h3>
+                            <h3 style="color:#ff4b4b; margin:0;">Over Budget Alert</h3>
                             <p style="color:#ff4b4b; margin:0.3rem 0 0 0;">
                                 Predicted cost <b>${cost:,.2f}</b> exceeds your budget of <b>${budget_usd:,.2f}</b>
                             </p>
                         </div>
                         """, unsafe_allow_html=True)
                     else:
-                        st.success(f"✅ Within budget! Predicted cost: ${cost:,.2f} (limit: ${budget_usd:,.2f})")
+                        st.success(f"Within budget! Predicted cost: ${cost:,.2f} (limit: ${budget_usd:,.2f})")
 
                     # ── Metrics ────────────────────────────────────────────────
                     lm1, lm2, lm3, lm4 = st.columns(4)
-                    lm1.metric("💡 Monthly Cost",    f"${cost:,.2f}")
-                    lm2.metric("🇪🇬 In EGP",         f"{cost_egp:,.1f}")
-                    lm3.metric("📅 Annual Estimate", f"${cost*12:,.2f}")
-                    lm4.metric("📊 Daily Average",   f"${cost/30:,.2f}")
+                    lm1.metric("Monthly Cost",    f"${cost:,.2f}")
+                    lm2.metric("In EGP",         f"{cost_egp:,.1f}")
+                    lm3.metric("Annual Estimate", f"${cost*12:,.2f}")
+                    lm4.metric("Daily Average",   f"${cost/30:,.2f}")
 
                     # ── Zone card ──────────────────────────────────────────────
                     color, zone_label, zone_note = cost_zone_usd(cost)
@@ -610,17 +599,17 @@ with tab2:
                     chart_col2, pdf_col2 = st.columns([3, 1])
 
                     with chart_col2:
-                        st.markdown("#### 🗓️ 12-Month Cost Forecast")
+                        st.markdown("#### 12-Month Cost Forecast")
                         trend_vals_usd = monthly_trend(cost)
                         fig2 = plot_trend(trend_vals_usd, "Estimated Monthly Cost", "USD", "#7c4dff")
                         st.plotly_chart(fig2, use_container_width=True)
 
                     with pdf_col2:
-                        st.markdown("#### 📄 Download Report")
+                        st.markdown("#### Download Report")
                         st.markdown("<br>", unsafe_allow_html=True)
                         pdf_bytes2 = generate_pdf_lgbm(lgbm_input, cost, ex_rate)
                         st.download_button(
-                            label="📥 Download PDF Report",
+                            label="Download PDF Report",
                             data=pdf_bytes2,
                             file_name=f"smartcity_report_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
                             mime="application/pdf",
@@ -640,6 +629,6 @@ with tab2:
 st.divider()
 st.markdown(
     "<p style='text-align:center; color:#30363d; font-size:0.78rem; font-family:Space Mono,monospace;'>"
-    "CatBoost · LightGBM · Streamlit · Smart Energy Analytics</p>",
+    "CatBoost | LightGBM | Streamlit | Smart Energy Analytics</p>",
     unsafe_allow_html=True,
 )
